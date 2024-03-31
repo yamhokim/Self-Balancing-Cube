@@ -46,7 +46,7 @@ namespace Motors {
     }
 
 
-    void setMotorSpeed(int motor, int speed) {
+    bool setMotorSpeed(int motor, int speed) {
         // Make sure speed is within limits
         double constrained_speed = constrain(abs(speed), min_duty_cycle, max_duty_cycle);
         
@@ -63,6 +63,7 @@ namespace Motors {
                 digitalWrite(motor3_pin2, LOW);
             } else {
                 Serial.println("Invalid motor number");
+                return false;
             }
         } else {
             if (motor == 1) {
@@ -76,6 +77,7 @@ namespace Motors {
                 digitalWrite(motor3_pin2, HIGH);
             } else {
                 Serial.println("Invalid motor number");
+                return false;
             }
         }
 
@@ -88,6 +90,9 @@ namespace Motors {
             ledcWrite(pwmChannel3, constrained_speed);
         } else {
             Serial.println("Invalid motor number");
+            return false;
         }
+
+        return true;
     }   
 }

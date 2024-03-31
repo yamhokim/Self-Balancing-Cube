@@ -107,9 +107,19 @@ void loop() {
   // i.e. it is already in the reference frame of the wheels
   // ALSO: we might need to invert some of these values depending on how the motors are wired
   // The negative sign is because reaction force is equal and opposite, but just a matter of semantics really
-  Motors::setMotorSpeed(1, -roll_ctrl);
-  Motors::setMotorSpeed(2, -pitch_ctrl);
-  Motors::setMotorSpeed(3, -yaw_ctrl);
+  if(!Motors::setMotorSpeed(1, -roll_ctrl)) {
+    Serial.println("Failed to set motor speed");
+    return;
+  };
+  if(!Motors::setMotorSpeed(2, -pitch_ctrl)) {
+    Serial.println("Failed to set motor speed");
+    return;
+  };
+  if(!Motors::setMotorSpeed(3, -yaw_ctrl)) {
+    Serial.println("Failed to set motor speed");
+    return;
+  
+  };
 
   // ################# Update end time #################
   last_time = millis();
