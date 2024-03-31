@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <vector>
 #include <iostream>
 #include <exception>
