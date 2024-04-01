@@ -7,7 +7,7 @@
 std::vector<double> mpu_data;
 std::vector<double> motor_data;
 
-const double loop_time = 0.0;
+const double loop_time = 0.01;
 double last_time = 0.0;
 
 double roll_err = 0.0;
@@ -31,7 +31,7 @@ double pitch_ctrl = 0.0;
 double yaw_ctrl = 0.0;
 
 // TODO: tune all of these values
-double kp= 0.0;
+double kp= 5.0;
 double ki= 0.0;
 double kd= 0.0;
 
@@ -61,27 +61,30 @@ void setup() {
 
 void loop() {
   // TODO: maybe add a start stop condition or something as an interrupt
-
+  // Serial.println("Starting loop");
   // ################# Enforce timer on loop #################
   if (millis() - last_time < loop_time) {
     return;
   }
 
   // ################# Read MPU6050 data #################
-  if (MPU::mpu.getMotionInterruptStatus()) { // TODO: check if this is even needed, we might just always want to read everything
-    mpu_data = MPU::readData(); // x, y, z -> roll, yaw, pitch (programmed like this, depends on orientation of MPU6050 on robot)
-  }
+  // if (MPU::mpu.getMotionInterruptStatus()) { // TODO: check if this is even needed, we might just always want to read everything
+  // Serial.println("Motion detected");
+  mpu_data = MPU::readData(); // x, y, z -> roll, yaw, pitch (programmed like this, depends on orientation of MPU6050 on robot)
+  // }
+  
 
-  if (mpu_data.size() == 0) { // Ensure we have MPU data
-    return;
-  }
+  // if (mpu_data.size() == 0) { // Ensure we have MPU data
+  //   return; 
+  // }
 
   // ################# Calculate PID #################
   // TODO: i think we could design the control so that it spins on a corner (like a holonomic robot) which is pretty cool
   // Kp
-  roll_err = roll_setpoint - mpu_data[0];
-  pitch_err = pitch_setpoint - mpu_data[1];
-  yaw_err = yaw_setpoint - mpu_data[2];
+  
+  roll_err = roll_setpoint - mpu_data[3];
+  pitch_err = pitch_setpoint - mpu_data[4];
+  yaw_err = yaw_setpoint - mpu_data[5];
 
   // Ki
   roll_err_sum += roll_err;
@@ -98,9 +101,10 @@ void loop() {
   yaw_err_deriv_filtered = alpha * yaw_err_deriv + (1-alpha) * yaw_err_deriv_filtered;
 
   // Control values
-  roll_ctrl = kp * roll_err + ki * roll_err_sum + kd * roll_err_deriv_filtered;
-  pitch_ctrl = kp * pitch_err + ki * pitch_err_sum + kd * pitch_err_deriv_filtered;
-  yaw_ctrl = kp * yaw_err + ki * yaw_err_sum + kd * yaw_err_deriv_filtered;
+  roll_ctrl = kp * roll_err;// + ki * roll_err_sum + kd * roll_err_deriv_filtered;
+  pitch_ctrl = kp * pitch_err;// + ki * pitch_err_sum + kd * pitch_err_deriv_filtered;
+  yaw_ctrl = kp * yaw_err;// + ki * yaw_err_sum + kd * yaw_err_deriv_filtered;
+
 
   // ################# Set motor speeds #################
   // The current math here essentially assumes we attach the MPU aligned to the face of the cube
@@ -120,6 +124,17 @@ void loop() {
     return;
   
   };
+  
+  Serial.println(roll_err);
+  Serial.println(pitch_err);
+  Serial.println(yaw_err);
+  // Serial.println(roll_err);
+  // Serial.println(pitch_err);
+  // Serial.println(yaw_err);
+  Serial.println(roll_ctrl);
+  Serial.println(pitch_ctrl);
+  Serial.println(yaw_ctrl);
+  Serial.println("Motor speeds set");
 
   // ################# Update end time #################
   last_time = millis();

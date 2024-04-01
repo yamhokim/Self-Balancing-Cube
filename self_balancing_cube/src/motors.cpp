@@ -2,9 +2,9 @@
 
 namespace Motors {
     // TODO: define motor pins
-    const unsigned int motor1_pin1 = 0;
-    const unsigned int motor1_pin2 = 0;
-    const unsigned int motor1_pin_enable = 0;
+    const unsigned int motor1_pin1 = 27;
+    const unsigned int motor1_pin2 = 14;
+    const unsigned int motor1_pin_enable = 12;
     const unsigned int pwmChannel1 = 0;
     
     const unsigned int motor2_pin1 = 0;
@@ -29,8 +29,8 @@ namespace Motors {
         pinMode(motor1_pin1, OUTPUT);
         pinMode(motor1_pin2, OUTPUT);
         pinMode(motor1_pin_enable, OUTPUT);
-        ledcSetup(pwmChannel1, PWM_freq, PWM_res);
-        ledcAttachPin(motor1_pin_enable, pwmChannel1);
+        //ledcSetup(pwmChannel1, PWM_freq, PWM_res);
+        //ledcAttachPin(motor1_pin_enable, pwmChannel1);
 
         pinMode(motor2_pin1, OUTPUT);
         pinMode(motor2_pin2, OUTPUT);
@@ -43,6 +43,8 @@ namespace Motors {
         pinMode(motor3_pin_enable, OUTPUT);
         ledcSetup(pwmChannel3, PWM_freq, PWM_res);
         ledcAttachPin(motor3_pin_enable, pwmChannel3);
+
+        Serial.println("Motors initialized");
     }
 
 
@@ -50,11 +52,14 @@ namespace Motors {
         // Make sure speed is within limits
         double constrained_speed = constrain(abs(speed), min_duty_cycle, max_duty_cycle);
         
+        Serial.print("Speed is ");
+        Serial.println(speed);
         // Set direction
         if (speed < 0) {
             if (motor == 1) {
                 digitalWrite(motor1_pin1, HIGH);
                 digitalWrite(motor1_pin2, LOW);
+                Serial.println("Setting motor 1 speed negaitve");
             } else if (motor == 2) {
                 digitalWrite(motor2_pin1, HIGH);
                 digitalWrite(motor2_pin2, LOW);
@@ -69,6 +74,7 @@ namespace Motors {
             if (motor == 1) {
                 digitalWrite(motor1_pin1, LOW);
                 digitalWrite(motor1_pin2, HIGH);
+                Serial.println("Setting motor 1 speed");
             } else if (motor == 2) {
                 digitalWrite(motor2_pin1, LOW);
                 digitalWrite(motor2_pin2, HIGH);
@@ -83,7 +89,9 @@ namespace Motors {
 
         // Set speed
         if (motor == 1) {
-            ledcWrite(pwmChannel1, constrained_speed);
+            //ledcWrite(pwmChannel1, constrained_speed);
+            analogWrite(motor1_pin_enable, constrained_speed);
+            //delay(200);
         } else if (motor == 2) {
             ledcWrite(pwmChannel2, constrained_speed);
         } else if (motor == 3) {
