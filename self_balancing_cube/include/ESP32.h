@@ -4,7 +4,7 @@
 #include "Standard_Imports.h"
 #include <wire.h>
 
-namespace ESP {
+namespace mcu {
     void init();
 }
 

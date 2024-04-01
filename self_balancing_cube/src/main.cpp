@@ -46,7 +46,7 @@ double yaw_setpoint = 0.0;
 void setup() {
 
   // Initialize serial ports on the ESP32
-  ESP::init();
+  mcu::init();
 
   // Initialize MPU6050
   MPU::init();

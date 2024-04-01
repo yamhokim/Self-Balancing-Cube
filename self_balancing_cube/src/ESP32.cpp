@@ -1,6 +1,6 @@
 #include "ESP32.h"
 
-namespace ESP {
+namespace mcu {
     void init() {
         // Initialize serial ports on the ESP32
         Serial.begin(9600);
