@@ -1,6 +1,9 @@
 #include "MPU6050.h"
 
 namespace MPU {
+
+    Adafruit_MPU6050 mpu;
+
     void init() {
         // Initialize MPU6050
         if (!mpu.begin()) {
