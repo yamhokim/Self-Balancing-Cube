@@ -2,9 +2,9 @@
 
 namespace Motors {
     // TODO: define motor pins
-    const unsigned int motor1_pin1 = 0;
-    const unsigned int motor1_pin2 = 0;
-    const unsigned int motor1_pin_enable = 0;
+    const unsigned int motor1_pin1 = 27;
+    const unsigned int motor1_pin2 = 14;
+    const unsigned int motor1_pin_enable = 12;
     const unsigned int pwmChannel1 = 0;
     
     const unsigned int motor2_pin1 = 0;
