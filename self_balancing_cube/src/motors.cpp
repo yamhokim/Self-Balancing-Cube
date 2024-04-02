@@ -29,8 +29,8 @@ namespace Motors {
         pinMode(motor1_pin1, OUTPUT);
         pinMode(motor1_pin2, OUTPUT);
         pinMode(motor1_pin_enable, OUTPUT);
-        //ledcSetup(pwmChannel1, PWM_freq, PWM_res);
-        //ledcAttachPin(motor1_pin_enable, pwmChannel1);
+        ledcSetup(pwmChannel1, PWM_freq, PWM_res);
+        ledcAttachPin(motor1_pin_enable, pwmChannel1);
 
         pinMode(motor2_pin1, OUTPUT);
         pinMode(motor2_pin2, OUTPUT);
@@ -80,9 +80,9 @@ namespace Motors {
                 return false;
             }
         }
-
         // Set speed
         if (motor == 1) {
+            Serial.println(constrained_speed);
             analogWrite(motor1_pin_enable, int(constrained_speed));
             //ledcWrite(pwmChannel1, constrained_speed);
         } else if (motor == 2) {
