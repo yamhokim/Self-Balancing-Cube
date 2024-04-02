@@ -83,13 +83,13 @@ namespace Motors {
 
         // Set speed
         if (motor == 1) {
-            analogWrite(motor1_pin_enable, constrained_speed);
+            analogWrite(motor1_pin_enable, int(constrained_speed));
             //ledcWrite(pwmChannel1, constrained_speed);
         } else if (motor == 2) {
-            analogWrite(motor1_pin_enable, constrained_speed);
+            analogWrite(motor2_pin_enable, int(constrained_speed));
             //ledcWrite(pwmChannel2, constrained_speed);
         } else if (motor == 3) {
-            analogWrite(motor1_pin_enable, constrained_speed);
+            analogWrite(motor3_pin_enable, int(constrained_speed));
             //ledcWrite(pwmChannel3, constrained_speed);
         } else {
             Serial.println("Invalid motor number");

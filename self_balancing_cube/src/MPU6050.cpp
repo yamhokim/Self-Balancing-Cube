@@ -3,9 +3,12 @@
 namespace MPU {
 
     Adafruit_MPU6050 mpu;
+    std::vector<double> offset = {0.0, 0.0, 0.0, 0.02, 0.03, 0.03};
 
     void init() {
         // Initialize MPU6050
+        Wire.begin();
+
         if (!mpu.begin()) {
             Serial.println("Failed to find MPU6050 chip");
             while (1) {
@@ -18,11 +21,11 @@ namespace MPU {
 
         // Setup motion detection           // TODO: tune these values (also do these need to be assertion checked?)
         mpu.setHighPassFilter(MPU6050_HIGHPASS_0_63_HZ);
-        mpu.setMotionDetectionThreshold(1);
-        mpu.setMotionDetectionDuration(LOOP_TIME);
+        //mpu.setMotionDetectionThreshold(1);
+        //mpu.setMotionDetectionDuration(LOOP_TIME);
         //mpu.setInterruptPinLatch(true);
         //mpu.setInterruptPinPolarity(true);
-        mpu.setMotionInterrupt(true);
+        //mpu.setMotionInterrupt(true);
 
         Serial.println("MPU6050 initialized");
         delay(100);
@@ -49,7 +52,9 @@ namespace MPU {
     std::vector<double> calc_change(std::vector<double> data) {
         std::vector<double> change;
         for (int i = 0; i < data.size(); i++) {
-            change.push_back(LOOP_TIME*data[i]);
+            
+            change.push_back((LOOP_TIME/100.0)*(data[i]+offset[i]));
+            
         }
         return change;
     }

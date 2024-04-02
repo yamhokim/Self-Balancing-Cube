@@ -41,7 +41,7 @@ double pitch_ctrl = 0.0;
 double yaw_ctrl = 0.0;
 
 // TODO: tune all of these values
-double kp= 5.0;
+double kp= 500.0;
 double ki= 0.0;
 double kd= 0.0;
 
@@ -74,16 +74,16 @@ void loop() {
 
   // ################# Enforce timer on loop #################
   // TODO: fix overflow possibility (i.e. millis() overflows)
-  // if (millis() - last_time < loop_time) {
-  //   return;
-  // }
-
-  // ################# Read MPU6050 data #################
-  if (MPU::mpu.getMotionInterruptStatus()) { // TODO: check if this is even needed, we might just always want to read everything
-    mpu_data = MPU::readData(); // x, y, z -> roll, yaw, pitch (programmed like this, depends on orientation of MPU6050 on robot)
-  }else{
+  if (millis() - last_time < LOOP_TIME) {
     return;
   }
+
+  // ################# Read MPU6050 data #################
+  //if (MPU::mpu.getMotionInterruptStatus()) { // TODO: check if this is even needed, we might just always want to read everything
+  mpu_data = MPU::readData(); // x, y, z -> roll, yaw, pitch (programmed like this, depends on orientation of MPU6050 on robot)
+  //}else{
+  //  return;
+  //}
 
   // if (mpu_data.size() == 0) { // Ensure we have MPU data
   //   return;
@@ -91,9 +91,9 @@ void loop() {
 
   // Update current angles
   angle_deltas = MPU::calc_change(mpu_data);
-  roll_curr += angle_deltas[0];
-  pitch_curr += angle_deltas[1];
-  yaw_curr += angle_deltas[2];
+  roll_curr += angle_deltas[3];
+  pitch_curr += angle_deltas[4];
+  yaw_curr += angle_deltas[5];
 
   roll_curr = fmod(roll_curr, 360.0);
   pitch_curr = fmod(pitch_curr, 360.0);
@@ -104,7 +104,7 @@ void loop() {
   // Kp
   roll_err = roll_setpoint - roll_curr;
   pitch_err = pitch_setpoint - pitch_curr;
-  yaw_err = yaw_setpoint - pitch_curr;
+  yaw_err = yaw_setpoint - yaw_curr;
 
   // TODO: need to add integral windup check
   // Ki
@@ -149,6 +149,9 @@ void loop() {
   
   };
 
+  //Serial.println("Roll: " + String(roll_curr) + " Pitch: " + String(pitch_curr) + " Yaw: " + String(yaw_curr));// + "\n Roll Ctrl: " + String(roll_ctrl) + " Pitch Ctrl: " + String(pitch_ctrl) + " Yaw Ctrl: " + String(yaw_ctrl));
+  // Serial.println("Roll Vel: " + String(mpu_data[3]) + " Pitch Vel: " + String(mpu_data[4]) + " Yaw Vel: " + String(mpu_data[5]));
+  Serial.println("Roll ctrl" + String(roll_ctrl) + " Pitch ctrl" + String(pitch_ctrl) + " Yaw ctrl" + String(yaw_ctrl));
   // ################# Update end time #################
   last_time = millis();
 
