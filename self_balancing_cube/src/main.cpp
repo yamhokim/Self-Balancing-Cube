@@ -7,7 +7,7 @@
 std::vector<double> mpu_data;
 std::vector<double> motor_data;
 
-const double loop_time = 0.01;
+const double loop_time = 5; // in milliseconds
 double last_time = 0.0;
 
 double roll_err = 0.0;
@@ -63,6 +63,7 @@ void loop() {
   // TODO: maybe add a start stop condition or something as an interrupt
 
   // ################# Enforce timer on loop #################
+  // TODO: fix overflow possibility (i.e. millis() overflows)
   if (millis() - last_time < loop_time) {
     return;
   }
