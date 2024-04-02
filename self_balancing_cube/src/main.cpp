@@ -7,8 +7,13 @@
 std::vector<double> mpu_data;
 std::vector<double> motor_data;
 
-const double loop_time = 5; // in milliseconds
+//const double loop_time = 5; // in milliseconds
 double last_time = 0.0;
+
+double roll_curr = 0.0;
+double pitch_curr = 0.0;
+double yaw_curr = 0.0;
+std::vector<double> angle_deltas;
 
 double roll_err = 0.0;
 double pitch_err = 0.0;
@@ -64,25 +69,35 @@ void loop() {
 
   // ################# Enforce timer on loop #################
   // TODO: fix overflow possibility (i.e. millis() overflows)
-  if (millis() - last_time < loop_time) {
-    return;
-  }
+  // if (millis() - last_time < loop_time) {
+  //   return;
+  // }
 
   // ################# Read MPU6050 data #################
-  // if (MPU::mpu.getMotionInterruptStatus()) { // TODO: check if this is even needed, we might just always want to read everything
-  //   mpu_data = MPU::readData(); // x, y, z -> roll, yaw, pitch (programmed like this, depends on orientation of MPU6050 on robot)
-  // }
-  mpu_data = MPU::readData();
+  if (MPU::mpu.getMotionInterruptStatus()) { // TODO: check if this is even needed, we might just always want to read everything
+    mpu_data = MPU::readData(); // x, y, z -> roll, yaw, pitch (programmed like this, depends on orientation of MPU6050 on robot)
+  }
+
   // if (mpu_data.size() == 0) { // Ensure we have MPU data
   //   return;
   // }
 
+  // Update current angles
+  angle_deltas = MPU::calc_change(mpu_data);
+  roll_curr += angle_deltas[0];
+  pitch_curr += angle_deltas[1];
+  yaw_curr += angle_deltas[2];
+
+  roll_curr = fmod(roll_curr, 360.0);
+  pitch_curr = fmod(pitch_curr, 360.0);
+  yaw_curr = fmod(yaw_curr, 360.0);
+
   // ################# Calculate PID #################
   // TODO: i think we could design the control so that it spins on a corner (like a holonomic robot) which is pretty cool
   // Kp
-  roll_err = roll_setpoint - mpu_data[3];
-  pitch_err = pitch_setpoint - mpu_data[4];
-  yaw_err = yaw_setpoint - mpu_data[5];
+  roll_err = roll_setpoint - roll_curr;
+  pitch_err = pitch_setpoint - pitch_curr;
+  yaw_err = yaw_setpoint - pitch_curr;
 
   // TODO: need to add integral windup check
   // // Ki
