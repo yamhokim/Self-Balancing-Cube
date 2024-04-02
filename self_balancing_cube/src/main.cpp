@@ -19,9 +19,14 @@ double roll_err = 0.0;
 double pitch_err = 0.0;
 double yaw_err = 0.0;
 
+double roll_err_prev = 0.0;
+double pitch_err_prev = 0.0;
+double yaw_err_prev = 0.0;
+
 double roll_err_sum = 0.0;
 double pitch_err_sum = 0.0;
 double yaw_err_sum = 0.0;
+double windup_cap = 10.0;
 
 double roll_err_deriv = 0.0; 
 double pitch_err_deriv = 0.0;
@@ -100,19 +105,23 @@ void loop() {
   yaw_err = yaw_setpoint - pitch_curr;
 
   // TODO: need to add integral windup check
-  // // Ki
-  // roll_err_sum += roll_err;
-  // pitch_err_sum += pitch_err;
-  // yaw_err_sum += yaw_err;
+  // Ki
+  roll_err_sum += roll_err;
+  pitch_err_sum += pitch_err;
+  yaw_err_sum += yaw_err;
 
-  // // Kd 
-  // roll_err_deriv = (roll_err - roll_err_deriv) / loop_time;
-  // pitch_err_deriv = (pitch_err - pitch_err_deriv) / loop_time;
-  // yaw_err_deriv = (yaw_err - yaw_err_deriv) / loop_time;
+  roll_err_sum = constrain(roll_err_sum, -windup_cap, windup_cap);
+  pitch_err_sum = constrain(pitch_err_sum, -windup_cap, windup_cap);
+  yaw_err_sum = constrain(yaw_err_sum, -windup_cap, windup_cap);
 
-  // roll_err_deriv_filtered = alpha * roll_err_deriv + (1-alpha) * roll_err_deriv_filtered;
-  // pitch_err_deriv_filtered = alpha * pitch_err_deriv + (1-alpha) * pitch_err_deriv_filtered;
-  // yaw_err_deriv_filtered = alpha * yaw_err_deriv + (1-alpha) * yaw_err_deriv_filtered;
+  // Kd 
+  roll_err_deriv = (roll_err - roll_err_prev) / LOOP_TIME;
+  pitch_err_deriv = (pitch_err - pitch_err_prev) / LOOP_TIME;
+  yaw_err_deriv = (yaw_err - yaw_err_prev) / LOOP_TIME;
+
+  roll_err_deriv_filtered = alpha * roll_err_deriv + (1-alpha) * roll_err_deriv_filtered;
+  pitch_err_deriv_filtered = alpha * pitch_err_deriv + (1-alpha) * pitch_err_deriv_filtered;
+  yaw_err_deriv_filtered = alpha * yaw_err_deriv + (1-alpha) * yaw_err_deriv_filtered;
 
   // Control values
   roll_ctrl = kp * roll_err; // + ki * roll_err_sum + kd * roll_err_deriv_filtered;
