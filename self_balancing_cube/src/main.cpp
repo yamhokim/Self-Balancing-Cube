@@ -81,6 +81,8 @@ void loop() {
   // ################# Read MPU6050 data #################
   if (MPU::mpu.getMotionInterruptStatus()) { // TODO: check if this is even needed, we might just always want to read everything
     mpu_data = MPU::readData(); // x, y, z -> roll, yaw, pitch (programmed like this, depends on orientation of MPU6050 on robot)
+  }else{
+    return;
   }
 
   // if (mpu_data.size() == 0) { // Ensure we have MPU data
