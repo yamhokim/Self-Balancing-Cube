@@ -23,6 +23,9 @@ namespace MPU {
         data.push_back(mpu6050.getAngleX());
         data.push_back(mpu6050.getAngleY());
         data.push_back(mpu6050.getAngleZ());
+
+        //Serial.println(data[3]);
+        return data;
     }
 
 

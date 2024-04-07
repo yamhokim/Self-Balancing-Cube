@@ -41,9 +41,9 @@ double pitch_ctrl = 0.0;
 double yaw_ctrl = 0.0;
 
 // TODO: tune all of these values
-double kp= 100000.0;
+double kp= 85000.0;
 double ki= 0.0;
-double kd= 5000.0;
+double kd= 0.0;
 
 double alpha = 1.0;
 
@@ -60,6 +60,11 @@ void setup() {
 
   // Initialize MPU6050
   MPU::init();
+
+  angles = MPU::readData();
+  roll_setpoint = angles[3];
+  pitch_setpoint = angles[4];
+  yaw_setpoint = angles[5];
 
   // Initialize motors (pins and PWM probably)
   Motors::init();
@@ -89,21 +94,14 @@ void loop() {
   //   return;
   // }
 
-  for (int i = 3; i < 6; i++) {
-    if (abs(mpu_data[i]) < 0.05) {
-      mpu_data[i] = 0.0;
-    }
-  }
-
   // Update current angles
   roll_prev = roll_curr;
   pitch_prev = pitch_curr;
   yaw_prev = yaw_curr;
 
-  angles = MPU::calc_change(mpu_data);
-  roll_curr = angles[3];
-  pitch_curr = angles[4];
-  yaw_curr = angles[5];
+  roll_curr = mpu_data[3];
+  pitch_curr = mpu_data[4];
+  yaw_curr = mpu_data[5];
 
   roll_curr = fmod(roll_curr, 360.0);
   pitch_curr = fmod(pitch_curr, 360.0);
@@ -116,13 +114,13 @@ void loop() {
   pitch_err = pitch_setpoint - pitch_curr;
   yaw_err = yaw_setpoint - yaw_curr;
 
-  if (abs(roll_err) < 0.015) {
+  if (abs(roll_err) < 0.5) {
     roll_err = 0;
   }
-  if (abs(pitch_err) < 0.015) {
+  if (abs(pitch_err) < 0.5) {
     pitch_err = 0;
   }
-  if (abs(yaw_err) < 0.015) {
+  if (abs(yaw_err) < 0.5) {
     yaw_err = 0;
   }
 
@@ -160,23 +158,24 @@ void loop() {
   // i.e. it is already in the reference frame of the wheels
   // ALSO: we might need to invert some of these values depending on how the motors are wired
   // The negative sign is because reaction force is equal and opposite, but just a matter of semantics really
-  if(!Motors::setMotorSpeed(1, -roll_ctrl)) {
-    Serial.println("Failed to set motor speed");
-    return;
-  };
-  if(!Motors::setMotorSpeed(2, -pitch_ctrl)) {
-    Serial.println("Failed to set motor speed");
-    return;
-  };
-  if(!Motors::setMotorSpeed(3, -roll_ctrl)) { //used to be yaw
-    Serial.println("Failed to set motor speed");
-    return;
+  // if(!Motors::setMotorSpeed(1, -roll_ctrl)) {
+  //   Serial.println("Failed to set motor speed");
+  //   return;
+  // };
+  // if(!Motors::setMotorSpeed(2, -pitch_ctrl)) {
+  //   Serial.println("Failed to set motor speed");
+  //   return;
+  // };
+  // if(!Motors::setMotorSpeed(3, -roll_ctrl)) { //used to be yaw
+  //   Serial.println("Failed to set motor speed");
+  //   return;
   
-  };
+  // };
 
-  Serial.println("Roll: " + String(roll_curr) + " Pitch: " + String(pitch_curr) + " Yaw: " + String(yaw_curr));// + "\n Roll Ctrl: " + String(roll_ctrl) + " Pitch Ctrl: " + String(pitch_ctrl) + " Yaw Ctrl: " + String(yaw_ctrl));
+  //Serial.println("Roll: " + String(roll_curr) + " Pitch: " + String(pitch_curr) + " Yaw: " + String(yaw_curr));// + "\n Roll Ctrl: " + String(roll_ctrl) + " Pitch Ctrl: " + String(pitch_ctrl) + " Yaw Ctrl: " + String(yaw_ctrl));
   // Serial.println("Roll Vel: " + String(mpu_data[3]) + " Pitch Vel: " + String(mpu_data[4]) + " Yaw Vel: " + String(mpu_data[5]));
-  // Serial.println("Roll ctrl" + String(roll_ctrl) + " Pitch ctrl" + String(pitch_ctrl) + " Yaw ctrl" + String(yaw_ctrl));
+  //Serial.println("Roll ctrl" + String(roll_ctrl) + " Pitch ctrl" + String(pitch_ctrl) + " Yaw ctrl" + String(yaw_ctrl));
+  Serial.println("Roll err: " + String(roll_err) + " Pitch err: " + String(pitch_err) + " Yaw err: " + String(yaw_err));
   // ################# Update end time #################
   last_time = millis();
 

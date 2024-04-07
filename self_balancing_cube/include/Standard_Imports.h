@@ -4,4 +4,4 @@
 #include <exception>
 #include <assert.h>
 
-#define LOOP_TIME 20
+#define LOOP_TIME 50
