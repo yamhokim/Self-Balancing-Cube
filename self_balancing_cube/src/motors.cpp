@@ -7,17 +7,17 @@ namespace Motors {
     const unsigned int motor1_pin_enable = 12;
     const unsigned int pwmChannel1 = 0;
     
-    const unsigned int motor2_pin1 = 0;
-    const unsigned int motor2_pin2 = 0;
-    const unsigned int motor2_pin_enable = 0;
-    const unsigned int pwmChannel2 = 1;
+    const unsigned int motor2_pin1 = 26;
+    const unsigned int motor2_pin2 = 25;
+    const unsigned int motor2_pin_enable = 33;
+    const unsigned int pwmChannel2 = 3;
 
-    const unsigned int motor3_pin1 = 0;
-    const unsigned int motor3_pin2 = 0;
-    const unsigned int motor3_pin_enable = 0;
-    const unsigned int pwmChannel3 = 2;
+    const unsigned int motor3_pin1 = 10;
+    const unsigned int motor3_pin2 = 9;
+    const unsigned int motor3_pin_enable = 13;
+    const unsigned int pwmChannel3 = 6;
 
-    const int PWM_freq = 5000;
+    const int PWM_freq = 3000;
     const int PWM_res = 8;
     const int min_duty_cycle = 0;
     const int max_duty_cycle = pow(2, PWM_res) - 1;
@@ -35,14 +35,14 @@ namespace Motors {
         pinMode(motor2_pin1, OUTPUT);
         pinMode(motor2_pin2, OUTPUT);
         pinMode(motor2_pin_enable, OUTPUT);
-        //ledcSetup(pwmChannel2, PWM_freq, PWM_res);
-        //ledcAttachPin(motor2_pin_enable, pwmChannel2);
+        ledcSetup(pwmChannel2, PWM_freq, PWM_res);
+        ledcAttachPin(motor2_pin_enable, pwmChannel2);
 
         pinMode(motor3_pin1, OUTPUT);
         pinMode(motor3_pin2, OUTPUT);
         pinMode(motor3_pin_enable, OUTPUT);
-        //ledcSetup(pwmChannel3, PWM_freq, PWM_res);
-        //ledcAttachPin(motor3_pin_enable, pwmChannel3);
+        ledcSetup(pwmChannel3, PWM_freq, PWM_res);
+        ledcAttachPin(motor3_pin_enable, pwmChannel3);
     }
 
 
@@ -82,15 +82,20 @@ namespace Motors {
         }
         // Set speed
         if (motor == 1) {
-            Serial.println(constrained_speed);
-            analogWrite(motor1_pin_enable, int(constrained_speed));
-            //ledcWrite(pwmChannel1, constrained_speed);
+            //Serial.println(constrained_speed);
+            //analogWrite(motor1_pin_enable, int(255));
+            //analogWrite(motor1_pin_enable, int(constrained_speed));
+            ledcWrite(pwmChannel1, int(constrained_speed));
         } else if (motor == 2) {
-            analogWrite(motor2_pin_enable, int(constrained_speed));
-            //ledcWrite(pwmChannel2, constrained_speed);
+            //analogWrite(motor1_pin_enable, int(255));
+
+            //analogWrite(motor2_pin_enable, int(constrained_speed));
+            ledcWrite(pwmChannel2, int(constrained_speed));
         } else if (motor == 3) {
-            analogWrite(motor3_pin_enable, int(constrained_speed));
-            //ledcWrite(pwmChannel3, constrained_speed);
+            //analogWrite(motor1_pin_enable, int(255));
+
+            //analogWrite(motor3_pin_enable, int(constrained_speed));
+            ledcWrite(pwmChannel3, int(constrained_speed));
         } else {
             Serial.println("Invalid motor number");
             return false;
