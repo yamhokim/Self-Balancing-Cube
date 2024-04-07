@@ -3,7 +3,7 @@
 namespace MPU {
 
     Adafruit_MPU6050 mpu;
-    std::vector<double> offset = {0.0, 0.0, 0.0, 0.02, 0.03, 0.03};
+    std::vector<double> offset = {0.0, 0.0, 0.0, 0.00, 0.00, 0.00};
 
     void init() {
         // Initialize MPU6050
@@ -26,9 +26,14 @@ namespace MPU {
         //mpu.setInterruptPinLatch(true);
         //mpu.setInterruptPinPolarity(true);
         //mpu.setMotionInterrupt(true);
+    
 
         Serial.println("MPU6050 initialized");
         delay(100);
+
+        //std::vector<double> calibration_readings = readData();
+        //offset = calibration_readings;
+        //Serial.println("MPU6050 offset calculated");
     }
 
 
@@ -37,13 +42,13 @@ namespace MPU {
         sensors_event_t a, g, temp;
         mpu.getEvent(&a, &g, &temp);
 
-        data.push_back(a.acceleration.x);
-        data.push_back(a.acceleration.y);
-        data.push_back(a.acceleration.z);
+        data.push_back(a.acceleration.x + offset[0]);
+        data.push_back(a.acceleration.y + offset[1]);
+        data.push_back(a.acceleration.z + offset[2]);
 
-        data.push_back(g.gyro.x);
-        data.push_back(g.gyro.y);
-        data.push_back(g.gyro.z);
+        data.push_back(g.gyro.x + offset[3]);
+        data.push_back(g.gyro.y + offset[4]);
+        data.push_back(g.gyro.z + offset[5]);
 
         return data;
     }
@@ -53,7 +58,7 @@ namespace MPU {
         std::vector<double> change;
         for (int i = 0; i < data.size(); i++) {
             
-            change.push_back((LOOP_TIME/100.0)*(data[i]+offset[i]));
+            change.push_back((LOOP_TIME/100.0)*(data[i]));
             
         }
         return change;

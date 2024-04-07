@@ -41,9 +41,9 @@ double pitch_ctrl = 0.0;
 double yaw_ctrl = 0.0;
 
 // TODO: tune all of these values
-double kp= 500.0;
+double kp= 100000.0;
 double ki= 0.0;
-double kd= 0.0;
+double kd= 5000.0;
 
 double alpha = 1.0;
 
@@ -89,6 +89,12 @@ void loop() {
   //   return;
   // }
 
+  for (int i = 3; i < 6; i++) {
+    if (abs(mpu_data[i]) < 0.05) {
+      mpu_data[i] = 0.0;
+    }
+  }
+
   // Update current angles
   angle_deltas = MPU::calc_change(mpu_data);
   roll_curr += angle_deltas[3];
@@ -105,6 +111,17 @@ void loop() {
   roll_err = roll_setpoint - roll_curr;
   pitch_err = pitch_setpoint - pitch_curr;
   yaw_err = yaw_setpoint - yaw_curr;
+
+  if (abs(roll_err) < 0.015) {
+    roll_err = 0;
+  }
+  if (abs(pitch_err) < 0.015) {
+    pitch_err = 0;
+  }
+  if (abs(yaw_err) < 0.015) {
+    yaw_err = 0;
+  }
+
 
   // TODO: need to add integral windup check
   // Ki
@@ -126,9 +143,13 @@ void loop() {
   yaw_err_deriv_filtered = alpha * yaw_err_deriv + (1-alpha) * yaw_err_deriv_filtered;
 
   // Control values
-  roll_ctrl = kp * roll_err; // + ki * roll_err_sum + kd * roll_err_deriv_filtered;
-  pitch_ctrl = kp * pitch_err; // + ki * pitch_err_sum + kd * pitch_err_deriv_filtered;
-  yaw_ctrl = kp * yaw_err; // + ki * yaw_err_sum + kd * yaw_err_deriv_filtered;
+  roll_ctrl = kp * roll_err + ki * roll_err_sum + kd * roll_err_deriv_filtered;
+  // Serial.println("prop ctrl" + String(kp*roll_err) + " int ctrl" + String(ki*roll_err_sum) + " derv ctrl" + String(kd*roll_err_deriv_filtered));
+
+
+
+  pitch_ctrl = kp * pitch_err + ki * pitch_err_sum + kd * pitch_err_deriv_filtered;
+  yaw_ctrl = kp * yaw_err + ki * yaw_err_sum + kd * yaw_err_deriv_filtered;
 
   // ################# Set motor speeds #################
   // The current math here essentially assumes we attach the MPU aligned to the face of the cube
@@ -143,15 +164,15 @@ void loop() {
     Serial.println("Failed to set motor speed");
     return;
   };
-  if(!Motors::setMotorSpeed(3, -yaw_ctrl)) {
+  if(!Motors::setMotorSpeed(3, -roll_ctrl)) { //used to be yaw
     Serial.println("Failed to set motor speed");
     return;
   
   };
 
-  //Serial.println("Roll: " + String(roll_curr) + " Pitch: " + String(pitch_curr) + " Yaw: " + String(yaw_curr));// + "\n Roll Ctrl: " + String(roll_ctrl) + " Pitch Ctrl: " + String(pitch_ctrl) + " Yaw Ctrl: " + String(yaw_ctrl));
-  // Serial.println("Roll Vel: " + String(mpu_data[3]) + " Pitch Vel: " + String(mpu_data[4]) + " Yaw Vel: " + String(mpu_data[5]));
-  // Serial.println("Roll ctrl" + String(roll_ctrl) + " Pitch ctrl" + String(pitch_ctrl) + " Yaw ctrl" + String(yaw_ctrl));
+  Serial.println("Roll: " + String(roll_curr) + " Pitch: " + String(pitch_curr) + " Yaw: " + String(yaw_curr));// + "\n Roll Ctrl: " + String(roll_ctrl) + " Pitch Ctrl: " + String(pitch_ctrl) + " Yaw Ctrl: " + String(yaw_ctrl));
+  //Serial.println("Roll Vel: " + String(mpu_data[3]) + " Pitch Vel: " + String(mpu_data[4]) + " Yaw Vel: " + String(mpu_data[5]));
+  //Serial.println("Roll ctrl" + String(roll_ctrl) + " Pitch ctrl" + String(pitch_ctrl) + " Yaw ctrl" + String(yaw_ctrl));
   // ################# Update end time #################
   last_time = millis();
 
