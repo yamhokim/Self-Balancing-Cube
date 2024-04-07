@@ -13,7 +13,7 @@ double last_time = 0.0;
 double roll_curr = 0.0;
 double pitch_curr = 0.0;
 double yaw_curr = 0.0;
-std::vector<double> angle_deltas;
+std::vector<double> angles;
 
 double roll_err = 0.0;
 double pitch_err = 0.0;

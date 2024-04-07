@@ -14,7 +14,7 @@ namespace MPU {
 
     std::vector<double> readData() {
         std::vector<double> data;
-        mpu6050.update()
+        mpu6050.update();
 
         data.push_back(mpu6050.getAccX());
         data.push_back(mpu6050.getAccY());

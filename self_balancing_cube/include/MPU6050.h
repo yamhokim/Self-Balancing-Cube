@@ -3,6 +3,7 @@
 
 #include "Standard_Imports.h"
 #include <Adafruit_MPU6050.h>
+#include <MPU6050_tockn.h>
 
 namespace MPU {
     void init();
