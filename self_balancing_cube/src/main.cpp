@@ -19,9 +19,9 @@ double roll_err = 0.0;
 double pitch_err = 0.0;
 double yaw_err = 0.0;
 
-double roll_err_prev = 0.0;
-double pitch_err_prev = 0.0;
-double yaw_err_prev = 0.0;
+double roll_prev = 0.0;
+double pitch_prev = 0.0;
+double yaw_prev = 0.0;
 
 double roll_err_sum = 0.0;
 double pitch_err_sum = 0.0;
@@ -90,10 +90,14 @@ void loop() {
   // }
 
   // Update current angles
-  angle_deltas = MPU::calc_change(mpu_data);
-  roll_curr += angle_deltas[3];
-  pitch_curr += angle_deltas[4];
-  yaw_curr += angle_deltas[5];
+  roll_prev = roll_curr;
+  pitch_prev = pitch_curr;
+  yaw_prev = yaw_curr;
+
+  angles = MPU::calc_change(mpu_data);
+  roll_curr = angles[3];
+  pitch_curr = angles[4];
+  yaw_curr = angles[5];
 
   roll_curr = fmod(roll_curr, 360.0);
   pitch_curr = fmod(pitch_curr, 360.0);
@@ -117,9 +121,9 @@ void loop() {
   yaw_err_sum = constrain(yaw_err_sum, -windup_cap, windup_cap);
 
   // Kd 
-  roll_err_deriv = (roll_err - roll_err_prev) / LOOP_TIME;
-  pitch_err_deriv = (pitch_err - pitch_err_prev) / LOOP_TIME;
-  yaw_err_deriv = (yaw_err - yaw_err_prev) / LOOP_TIME;
+  roll_err_deriv = (roll_curr - roll_prev) / LOOP_TIME;
+  pitch_err_deriv = (pitch_curr - pitch_prev) / LOOP_TIME;
+  yaw_err_deriv = (yaw_curr - yaw_prev) / LOOP_TIME;
 
   roll_err_deriv_filtered = alpha * roll_err_deriv + (1-alpha) * roll_err_deriv_filtered;
   pitch_err_deriv_filtered = alpha * pitch_err_deriv + (1-alpha) * pitch_err_deriv_filtered;
@@ -149,7 +153,7 @@ void loop() {
   
   };
 
-  //Serial.println("Roll: " + String(roll_curr) + " Pitch: " + String(pitch_curr) + " Yaw: " + String(yaw_curr));// + "\n Roll Ctrl: " + String(roll_ctrl) + " Pitch Ctrl: " + String(pitch_ctrl) + " Yaw Ctrl: " + String(yaw_ctrl));
+  Serial.println("Roll: " + String(roll_curr) + " Pitch: " + String(pitch_curr) + " Yaw: " + String(yaw_curr));// + "\n Roll Ctrl: " + String(roll_ctrl) + " Pitch Ctrl: " + String(pitch_ctrl) + " Yaw Ctrl: " + String(yaw_ctrl));
   // Serial.println("Roll Vel: " + String(mpu_data[3]) + " Pitch Vel: " + String(mpu_data[4]) + " Yaw Vel: " + String(mpu_data[5]));
   // Serial.println("Roll ctrl" + String(roll_ctrl) + " Pitch ctrl" + String(pitch_ctrl) + " Yaw ctrl" + String(yaw_ctrl));
   // ################# Update end time #################

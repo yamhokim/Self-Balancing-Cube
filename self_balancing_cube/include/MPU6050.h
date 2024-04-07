@@ -5,8 +5,6 @@
 #include <Adafruit_MPU6050.h>
 
 namespace MPU {
-    extern Adafruit_MPU6050 mpu;
-
     void init();
     std::vector<double> readData();
     std::vector<double> calc_change(std::vector<double> data);
