@@ -1,6 +1,6 @@
 #include "Standard_Imports.h"
 #include "Motors.h"
-#include "MPU6050.h"
+#include "MPU6050_cust.h"
 #include "ESP32.h"
 
 // Initialize variables
@@ -73,9 +73,9 @@ void setup() {
   }
 
   angles = MPU::readData();
-  roll_setpoint = angles[3];
-  pitch_setpoint = angles[4];
-  yaw_setpoint = angles[5];
+  roll_setpoint = angles[0];
+  pitch_setpoint = angles[1];
+  yaw_setpoint = angles[2];
 
   Serial.println("Finished calibrating setpoints");
 
@@ -115,9 +115,9 @@ void loop() {
   pitch_prev = pitch_curr;
   yaw_prev = yaw_curr;
 
-  roll_curr = mpu_data[3];
-  pitch_curr = mpu_data[4];
-  yaw_curr = mpu_data[5];
+  roll_curr = mpu_data[0];
+  pitch_curr = mpu_data[1];
+  yaw_curr = mpu_data[2];
 
   roll_curr = fmod(roll_curr, 360.0);
   pitch_curr = fmod(pitch_curr, 360.0);
