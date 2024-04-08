@@ -31,6 +31,7 @@ double windup_cap = 10.0;
 double roll_err_deriv = 0.0; 
 double pitch_err_deriv = 0.0;
 double yaw_err_deriv = 0.0;
+int deriv_count = 1;
 
 double roll_err_deriv_filtered = 0.0;
 double pitch_err_deriv_filtered = 0.0;
@@ -41,15 +42,19 @@ double pitch_ctrl = 0.0;
 double yaw_ctrl = 0.0;
 
 // TODO: tune all of these values
-double kp= 85000.0;
+double kp= 50.0;
 double ki= 0.0;
-double kd= 0.0;
+double kd= 100.0;
 
 double alpha = 1.0;
 
 double roll_setpoint = 0.0;
 double pitch_setpoint = 0.0;
 double yaw_setpoint = 0.0;
+
+// TODO: tune deadband region
+double deadband = 2.0;
+
 
 // ################# PID #################
 
@@ -61,10 +66,18 @@ void setup() {
   // Initialize MPU6050
   MPU::init();
 
+  Serial.println("Starting setpoint calibration");
+  for (int i = 0; i < 50; i++) {
+    angles = MPU::readData();
+    delay(10);
+  }
+
   angles = MPU::readData();
   roll_setpoint = angles[3];
   pitch_setpoint = angles[4];
   yaw_setpoint = angles[5];
+
+  Serial.println("Finished calibrating setpoints");
 
   // Initialize motors (pins and PWM probably)
   Motors::init();
@@ -95,7 +108,10 @@ void loop() {
   // }
 
   // Update current angles
-  roll_prev = roll_curr;
+  if(deriv_count % 5 == 0){
+    roll_prev = roll_curr;
+    deriv_count = 1;
+  }
   pitch_prev = pitch_curr;
   yaw_prev = yaw_curr;
 
@@ -114,13 +130,13 @@ void loop() {
   pitch_err = pitch_setpoint - pitch_curr;
   yaw_err = yaw_setpoint - yaw_curr;
 
-  if (abs(roll_err) < 0.5) {
+  if (abs(roll_err) < deadband) {
     roll_err = 0;
   }
-  if (abs(pitch_err) < 0.5) {
+  if (abs(pitch_err) < deadband) {
     pitch_err = 0;
   }
-  if (abs(yaw_err) < 0.5) {
+  if (abs(yaw_err) < deadband) {
     yaw_err = 0;
   }
 
@@ -158,25 +174,29 @@ void loop() {
   // i.e. it is already in the reference frame of the wheels
   // ALSO: we might need to invert some of these values depending on how the motors are wired
   // The negative sign is because reaction force is equal and opposite, but just a matter of semantics really
-  // if(!Motors::setMotorSpeed(1, -roll_ctrl)) {
-  //   Serial.println("Failed to set motor speed");
-  //   return;
-  // };
-  // if(!Motors::setMotorSpeed(2, -pitch_ctrl)) {
-  //   Serial.println("Failed to set motor speed");
-  //   return;
-  // };
-  // if(!Motors::setMotorSpeed(3, -roll_ctrl)) { //used to be yaw
-  //   Serial.println("Failed to set motor speed");
-  //   return;
+  if(!Motors::setMotorSpeed(1, -roll_ctrl)) {
+    Serial.println("Failed to set motor speed");
+    return;
+  };
+  if(!Motors::setMotorSpeed(2, -pitch_ctrl)) {
+    Serial.println("Failed to set motor speed");
+    return;
+  };
+  if(!Motors::setMotorSpeed(3, -roll_ctrl)) { //used to be yaw
+    Serial.println("Failed to set motor speed");
+    return;
   
-  // };
+  };
 
   //Serial.println("Roll: " + String(roll_curr) + " Pitch: " + String(pitch_curr) + " Yaw: " + String(yaw_curr));// + "\n Roll Ctrl: " + String(roll_ctrl) + " Pitch Ctrl: " + String(pitch_ctrl) + " Yaw Ctrl: " + String(yaw_ctrl));
   // Serial.println("Roll Vel: " + String(mpu_data[3]) + " Pitch Vel: " + String(mpu_data[4]) + " Yaw Vel: " + String(mpu_data[5]));
   //Serial.println("Roll ctrl" + String(roll_ctrl) + " Pitch ctrl" + String(pitch_ctrl) + " Yaw ctrl" + String(yaw_ctrl));
   Serial.println("Roll err: " + String(roll_err) + " Pitch err: " + String(pitch_err) + " Yaw err: " + String(yaw_err));
+  Serial.println(String(kp * roll_err) + ", " + String(kd * pitch_err_deriv_filtered));
   // ################# Update end time #################
   last_time = millis();
+
+  // Just seeing if updating deriv less frequently results in better results
+  deriv_count++;
 
 }
