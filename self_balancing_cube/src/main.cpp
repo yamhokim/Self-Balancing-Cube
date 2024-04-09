@@ -26,7 +26,7 @@ double yaw_prev = 0.0;
 double roll_err_sum = 0.0;
 double pitch_err_sum = 0.0;
 double yaw_err_sum = 0.0;
-double windup_cap = 10.0;
+double windup_cap = 40.0;
 
 double roll_err_deriv = 0.0; 
 double pitch_err_deriv = 0.0;
@@ -42,19 +42,19 @@ double pitch_ctrl = 0.0;
 double yaw_ctrl = 0.0;
 
 // TODO: tune all of these values
-double kp= 50.0;
-double ki= 0.0;
-double kd= 100.0;
+double kp= 178;
+double ki= 1.0;
+double kd= 3;
 
-double alpha = 1.0;
+double alpha = 1.5;
 
 double roll_setpoint = 0.0;
 double pitch_setpoint = 0.0;
 double yaw_setpoint = 0.0;
 
 // TODO: tune deadband region
-double deadband = 2.0;
-
+double deadband = 0.0;
+double roll_ctrl_prev = 0.0;
 
 // ################# PID #################
 
@@ -174,7 +174,7 @@ void loop() {
   // i.e. it is already in the reference frame of the wheels
   // ALSO: we might need to invert some of these values depending on how the motors are wired
   // The negative sign is because reaction force is equal and opposite, but just a matter of semantics really
-  if(!Motors::setMotorSpeed(1, -roll_ctrl)) {
+  if(!Motors::setMotorSpeed(1, -roll_ctrl+roll_ctrl_prev)) {
     Serial.println("Failed to set motor speed");
     return;
   };
@@ -185,14 +185,14 @@ void loop() {
   if(!Motors::setMotorSpeed(3, -roll_ctrl)) { //used to be yaw
     Serial.println("Failed to set motor speed");
     return;
-  
   };
+  roll_ctrl_prev = -roll_ctrl+roll_ctrl_prev;
 
   //Serial.println("Roll: " + String(roll_curr) + " Pitch: " + String(pitch_curr) + " Yaw: " + String(yaw_curr));// + "\n Roll Ctrl: " + String(roll_ctrl) + " Pitch Ctrl: " + String(pitch_ctrl) + " Yaw Ctrl: " + String(yaw_ctrl));
   // Serial.println("Roll Vel: " + String(mpu_data[3]) + " Pitch Vel: " + String(mpu_data[4]) + " Yaw Vel: " + String(mpu_data[5]));
-  //Serial.println("Roll ctrl" + String(roll_ctrl) + " Pitch ctrl" + String(pitch_ctrl) + " Yaw ctrl" + String(yaw_ctrl));
-  Serial.println("Roll err: " + String(roll_err) + " Pitch err: " + String(pitch_err) + " Yaw err: " + String(yaw_err));
-  Serial.println(String(kp * roll_err) + ", " + String(kd * pitch_err_deriv_filtered));
+  Serial.print("Roll ctrl" + String(roll_ctrl) + " Pitch ctrl" + String(pitch_ctrl) + " Yaw ctrl" + String(yaw_ctrl));
+  Serial.println(" Roll err: " + String(roll_err) + " Pitch err: " + String(pitch_err) + " Yaw err: " + String(yaw_err));
+  //Serial.println(String(kp * roll_err) + ", " + String(kd * pitch_err_deriv_filtered));
   // ################# Update end time #################
   last_time = millis();
 

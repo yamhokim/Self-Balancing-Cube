@@ -12,8 +12,8 @@ namespace Motors {
     const unsigned int motor2_pin_enable = 33;
     const unsigned int pwmChannel2 = 3;
 
-    const unsigned int motor3_pin1 = 9;
-    const unsigned int motor3_pin2 = 10;
+    const unsigned int motor3_pin1 = 10;
+    const unsigned int motor3_pin2 = 9;
     const unsigned int motor3_pin_enable = 13;
     const unsigned int pwmChannel3 = 6;
 
