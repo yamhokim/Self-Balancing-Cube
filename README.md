@@ -4,8 +4,8 @@ A self-balancing cube created as the capstone project for our MIE438 (Microcontr
 
 ## Getting Started
 
-(ADD LATER)
+(dont do this)
 
 ### Prerequisites
 
-(ADD LATER)
+(pain)
