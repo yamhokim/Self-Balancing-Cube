@@ -6,7 +6,7 @@
     // FILES: I2Cdev.h, I2Cdev.cpp, MPU6050.h, MPU6050.cpp, helper_3dmath.h, MPU6050_6Axis_MotionApps612.h,
     // and MPU6050_6Axis_MotionApps612.cpp.
 
-    // THE MPU6050 INITIALIZATION CODE IS HEAVILY BASED ON EXAMPLE CODE FROM I2CDEVLIB.
+    // SOME OF THE MPU6050 INITIALIZATION CODE IS HEAVILY BASED ON EXAMPLE CODE FROM I2CDEVLIB.
 // **********************************************************************************************************
 
 namespace MPU {
@@ -83,6 +83,17 @@ namespace MPU {
             Serial.print(devStatus);
             Serial.println(F(")"));
         }
+
+        // Calibrate MPU6050
+        Serial.println("Calibrating MPU6050...");
+        std::vector<double> angles;
+        for (int i = 0; i < 500; i++) {
+            angles = MPU::readData();
+            delay(10);
+        }
+        Serial.println("MPU6050 calibrated");
+
+        return;
     }
 
 

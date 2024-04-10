@@ -2,6 +2,7 @@
 #include "Motors.h"
 #include "MPU6050_cust.h"
 #include "ESP32.h"
+#include "button.h"
 
 // Initialize variables
 std::vector<double> mpu_data;
@@ -42,10 +43,6 @@ double kd= 2.0;
 
 double alpha = 0.2;
 
-double roll_setpoint = 0.0;
-double pitch_setpoint = 0.0;
-double yaw_setpoint = 0.0;
-
 // ################# PID #################
 
 void setup() {
@@ -56,29 +53,18 @@ void setup() {
   // Initialize MPU6050
   MPU::init();
 
-  // Calibrate balance point
-  Serial.println("Starting setpoint calibration");
-  for (int i = 0; i < 500; i++) {
-    angles = MPU::readData();
-    delay(10);
-  }
-
-  angles = MPU::readData();
-  roll_setpoint = angles[0];
-  pitch_setpoint = angles[1];
-  yaw_setpoint = angles[2];
-
-  Serial.println("Finished calibrating setpoints");
-
   // Initialize motors
   Motors::init();
+
+  // Initialize button
+  Button::init();
 
   Serial.println("Setup complete");
 }
 
 void loop() {
   // ################# Enforce timer on loop #################
-  if (millis() - last_time < LOOP_TIME) {
+  if (millis() - last_time < LOOP_TIME or !Button::onState()) {
     return;
   }
 
@@ -102,9 +88,11 @@ void loop() {
 
   // ################# Calculate PID #################
   // Kp
-  roll_err = roll_curr - roll_setpoint;
-  pitch_err = pitch_curr - pitch_setpoint;
-  yaw_err = yaw_curr - yaw_setpoint;
+  noInterrupts();
+  roll_err = roll_curr - Button::roll_setpoint;
+  pitch_err = pitch_curr - Button::pitch_setpoint;
+  yaw_err = yaw_curr - Button::yaw_setpoint;
+  interrupts();
 
   // Ki
   roll_err_sum -= mpu_data[3];

@@ -41,6 +41,8 @@ namespace Motors {
         pinMode(motor3_pin_enable, OUTPUT);
         ledcSetup(pwmChannel3, PWM_freq, PWM_res);
         ledcAttachPin(motor3_pin_enable, pwmChannel3);
+
+        Serial.println("Motors initialized");
     }
 
 
@@ -78,7 +80,7 @@ namespace Motors {
                 return false;
             }
         }
-        
+
         // Set speed
         if (motor == 1) {
             ledcWrite(pwmChannel1, int(constrained_speed));
