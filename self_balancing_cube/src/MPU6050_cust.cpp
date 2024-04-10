@@ -1,4 +1,5 @@
 #include "MPU6050_cust.h"
+#include "helper_3dmath.h"
 
 namespace MPU {
 
@@ -13,12 +14,13 @@ namespace MPU {
 
     Quaternion q;           // [w, x, y, z]         quaternion container
     float euler[3];         // [psi, theta, phi]    Euler angle container
+    VectorInt16 gyro;       // [x, y, z]            gyro container
 
     void init() {
         // Initialize MPU6050
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
         Wire.begin();
-        Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+        //Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
 #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
         Fastwire::setup(400, true);
 #endif
@@ -90,6 +92,10 @@ namespace MPU {
             data.push_back(euler[2] * 180 / M_PI);
             data.push_back(euler[1] * 180 / M_PI);
             data.push_back(euler[0] * 180 / M_PI);
+            mpu.dmpGetGyro(&gyro, fifoBuffer);
+            data.push_back(gyro.x);
+            data.push_back(gyro.y);
+            data.push_back(gyro.z);
         }
 
         return data;

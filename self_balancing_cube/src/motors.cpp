@@ -95,6 +95,7 @@ namespace Motors {
             //analogWrite(motor1_pin_enable, int(255));
 
             //analogWrite(motor3_pin_enable, int(constrained_speed));
+            // abs(speed) > max_duty_cycle ? max_duty_cycle : max_duty_cycle - abs(speed);
             ledcWrite(pwmChannel3, int(constrained_speed));
         } else {
             Serial.println("Invalid motor number");
