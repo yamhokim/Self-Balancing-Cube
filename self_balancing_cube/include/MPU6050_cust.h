@@ -9,7 +9,6 @@
 namespace MPU {
     void init();
     std::vector<double> readData();
-    std::vector<double> calc_change(std::vector<double> data);
     void dmpDataReady();
 }
 

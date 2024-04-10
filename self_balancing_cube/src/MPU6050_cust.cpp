@@ -1,6 +1,14 @@
 #include "MPU6050_cust.h"
 #include "helper_3dmath.h"
 
+// **********************************************************************************************************
+    // MPU6050 READINGS ARE OBTAINED THORUGH THE I2CDEVLIB LIBRARY. THIS LIBRARY INCLUDES THE
+    // FILES: I2Cdev.h, I2Cdev.cpp, MPU6050.h, MPU6050.cpp, helper_3dmath.h, MPU6050_6Axis_MotionApps612.h,
+    // and MPU6050_6Axis_MotionApps612.cpp.
+
+    // THE MPU6050 INITIALIZATION CODE IS HEAVILY BASED ON EXAMPLE CODE FROM I2CDEVLIB.
+// **********************************************************************************************************
+
 namespace MPU {
 
     MPU6050_6Axis_MotionApps612 mpu;
@@ -17,13 +25,11 @@ namespace MPU {
     VectorInt16 gyro;       // [x, y, z]            gyro container
 
     void init() {
+
         // Initialize MPU6050
-#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
         Wire.begin();
-        //Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
-#elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
-        Fastwire::setup(400, true);
-#endif
+        Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+
         // initialize device
         Serial.println(F("Initializing I2C devices..."));
         mpu.initialize();
@@ -83,6 +89,7 @@ namespace MPU {
     std::vector<double> readData() {
         std::vector<double> data;
         if (!dmpReady) {
+            Serial.println("DMP not ready");
             return {};
         }
 
@@ -92,6 +99,7 @@ namespace MPU {
             data.push_back(euler[2] * 180 / M_PI);
             data.push_back(euler[1] * 180 / M_PI);
             data.push_back(euler[0] * 180 / M_PI);
+
             mpu.dmpGetGyro(&gyro, fifoBuffer);
             data.push_back(gyro.x);
             data.push_back(gyro.y);
@@ -101,14 +109,6 @@ namespace MPU {
         return data;
     }
 
-
-    std::vector<double> calc_change(std::vector<double> data) {
-        std::vector<double> change;
-        for (int i = 0; i < data.size(); i++) {
-            change.push_back((LOOP_TIME/100.0)*(data[i])); 
-        }
-        return change;
-    }
 
     volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
     void dmpDataReady() {

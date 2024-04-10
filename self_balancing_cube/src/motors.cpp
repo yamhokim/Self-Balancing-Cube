@@ -1,7 +1,6 @@
 #include "Motors.h"
 
 namespace Motors {
-    // TODO: define motor pins
     const unsigned int motor1_pin1 = 27;
     const unsigned int motor1_pin2 = 14;
     const unsigned int motor1_pin_enable = 12;
@@ -25,7 +24,6 @@ namespace Motors {
 
     void init() {
         // Initialize motors
-        // TODO: add assertion check here?
         pinMode(motor1_pin1, OUTPUT);
         pinMode(motor1_pin2, OUTPUT);
         pinMode(motor1_pin_enable, OUTPUT);
@@ -80,22 +78,13 @@ namespace Motors {
                 return false;
             }
         }
+        
         // Set speed
         if (motor == 1) {
-            //Serial.println(constrained_speed);
-            //analogWrite(motor1_pin_enable, int(255));
-            //analogWrite(motor1_pin_enable, int(constrained_speed));
             ledcWrite(pwmChannel1, int(constrained_speed));
         } else if (motor == 2) {
-            //analogWrite(motor1_pin_enable, int(255));
-
-            //analogWrite(motor2_pin_enable, int(constrained_speed));
             ledcWrite(pwmChannel2, int(constrained_speed));
         } else if (motor == 3) {
-            //analogWrite(motor1_pin_enable, int(255));
-
-            //analogWrite(motor3_pin_enable, int(constrained_speed));
-            // abs(speed) > max_duty_cycle ? max_duty_cycle : max_duty_cycle - abs(speed);
             ledcWrite(pwmChannel3, int(constrained_speed));
         } else {
             Serial.println("Invalid motor number");

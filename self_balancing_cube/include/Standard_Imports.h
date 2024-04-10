@@ -3,5 +3,6 @@
 #include <iostream>
 #include <exception>
 #include <assert.h>
+#include <wire.h>
 
 #define LOOP_TIME 10
