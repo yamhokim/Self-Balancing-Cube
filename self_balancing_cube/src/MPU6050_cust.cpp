@@ -7,6 +7,8 @@
     // and MPU6050_6Axis_MotionApps612.cpp.
 
     // SOME OF THE MPU6050 INITIALIZATION CODE IS HEAVILY BASED ON EXAMPLE CODE FROM I2CDEVLIB.
+    // THE EXAMPLE CODE CAN BE FOUND AT:
+    // https://github.com/jrowberg/i2cdevlib/blob/master/Arduino/MPU6050/examples/MPU6050_DMP6_using_DMP_V6.12/MPU6050_DMP6_using_DMP_V6.12.ino
 // **********************************************************************************************************
 
 namespace MPU {

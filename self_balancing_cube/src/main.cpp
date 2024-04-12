@@ -22,7 +22,7 @@ double yaw_err = 0.0;
 double roll_err_sum = 0.0;
 double pitch_err_sum = 0.0;
 double yaw_err_sum = 0.0;
-double windup_cap = 40.0;
+double windup_cap = 25.0;
 
 double roll_err_deriv = 0.0; 
 double pitch_err_deriv = 0.0;
@@ -37,11 +37,17 @@ double roll_ctrl = 0.0;
 double pitch_ctrl = 0.0;
 double yaw_ctrl = 0.0;
 
-double kp= 250.0;
-double ki= 0.03;
-double kd= 2.0;
+double kp= 140.0;
+double ki= 8;
+double kd= 0.60;
 
 double alpha = 0.2;
+
+double roll_setpoint = 0.0;
+double pitch_setpoint = 0.0;
+double yaw_setpoint = 0.0;
+
+bool setpoint_set = false;
 
 // ################# PID #################
 
@@ -64,8 +70,30 @@ void setup() {
 
 void loop() {
   // ################# Enforce timer on loop #################
+  if (setpoint_set and !Button::onState()) {
+    Serial.println("Control off");
+    setpoint_set = false;
+
+    // Stop motors
+    Motors::setMotorSpeed(1, 0);
+    Motors::setMotorSpeed(2, 0);
+    Motors::setMotorSpeed(3, 0);
+  }
+
   if (millis() - last_time < LOOP_TIME or !Button::onState()) {
     return;
+  }
+
+  if (Button::onState() and !setpoint_set) {
+    angles = MPU::readData();
+    if (angles.empty()) {
+      return;
+    }
+    roll_setpoint = angles[0];
+    pitch_setpoint = angles[1];
+    yaw_setpoint = angles[2];
+    setpoint_set = true;
+    Serial.println("Control on, setpoint set");
   }
 
   // ################# Read MPU6050 data #################
@@ -76,7 +104,6 @@ void loop() {
   }
 
   // Update current angles
-
   roll_curr = mpu_data[0];
   pitch_curr = mpu_data[1];
   yaw_curr = mpu_data[2];
@@ -88,11 +115,9 @@ void loop() {
 
   // ################# Calculate PID #################
   // Kp
-  noInterrupts();
-  roll_err = roll_curr - Button::roll_setpoint;
-  pitch_err = pitch_curr - Button::pitch_setpoint;
-  yaw_err = yaw_curr - Button::yaw_setpoint;
-  interrupts();
+  roll_err = roll_curr - roll_setpoint;
+  pitch_err = pitch_curr - pitch_setpoint;
+  yaw_err = yaw_curr - yaw_setpoint;
 
   // Ki
   roll_err_sum -= mpu_data[3];
@@ -131,7 +156,7 @@ void loop() {
     Serial.println("Failed to set motor speed");
     return;
   };
-
+  //Serial.println(String(kp*roll_err) + " " + String(ki*roll_err_sum) + " " + String(kd*roll_err_deriv_filtered));
   // ################# Update end time #################
   last_time = millis();
 }
