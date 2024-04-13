@@ -5,4 +5,4 @@
 #include <assert.h>
 #include <wire.h>
 
-#define LOOP_TIME 60
+#define LOOP_TIME 10
