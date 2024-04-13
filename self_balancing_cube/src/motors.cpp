@@ -19,7 +19,7 @@ namespace Motors {
     const int PWM_freq = 3000;
     const int PWM_res = 8;
     const int min_duty_cycle = 0;
-    const int max_duty_cycle = 230;//pow(2, PWM_res) - 1;
+    const int max_duty_cycle = pow(2, PWM_res) - 1;
     int duty_cycle = 0;
 
     void init() {
